@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client/edge';
 import { Hono } from 'hono'
 
 const app = new Hono();
