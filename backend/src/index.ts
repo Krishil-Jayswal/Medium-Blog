@@ -31,18 +31,49 @@ app.post('/api/v1/user/signup', async (c) => {
     return c.json({
       token
     });
-    
+
   } catch (error) {
     console.error(error);
 
+    c.status(403);
     return c.json({
       error: 'Error while signing up.'
     });
   } 
 });
 
-app.post('/api/v1/user/signin', (c) => {
-  return c.text('signin route.');
+app.post('/api/v1/user/signin', async (c) => {
+
+  const primsa = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL
+  }).$extends(withAccelerate());
+
+  try {
+    const body = await c.req.json();
+
+    const user = await primsa.user.findUnique({
+      where: {
+        email: body.email,
+        password: body.password
+      }
+    });
+
+    if(!user) throw new Error();
+
+    const token = await sign({id:user.id}, c.env.JWT_SECRET);
+
+    return c.json({
+      token
+    });
+  } catch(error) {
+    console.error(error);
+
+    c.status(403);
+    return c.json({
+      error: 'User not found'
+    });
+
+  }
 });
 
 app.post('/api/v1/blog', (c) => {
