@@ -3,6 +3,7 @@ import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
 import { z } from "zod";
+import { hashPassword, verifyPassword } from "../../utils/crypto";
 
 const signupInput = z.object({
   email: z.string().email(),
@@ -40,10 +41,12 @@ userRouter.post('/signup', async (c) => {
           });
         }
 
+        const hashedPassword = await hashPassword(body.password);
+
         const user = await prisma.user.create({
           data: {
             email: body.email,
-            password: body.password,
+            password: hashedPassword,
             name: body.name
           }
         });
@@ -85,11 +88,19 @@ userRouter.post('/signin', async (c) => {
     const user = await primsa.user.findUnique({
       where: {
         email: body.email,
-        password: body.password
       }
     });
 
     if(!user) throw new Error();
+
+    const isPasswordValid = await verifyPassword(body.password, user.password);
+
+    if(!isPasswordValid) {
+      c.status(401);
+      return c.json({
+        error: 'Invalid password.'
+      });
+    }
 
     const token = await sign({id:user.id}, c.env.JWT_SECRET);
 
