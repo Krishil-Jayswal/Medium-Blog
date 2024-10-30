@@ -18,6 +18,7 @@ export const protectedBlogRouter = new Hono<{
 
 publicBlogRouter.use('*', prismaClientMiddleware);
 
+// Pagination remaining.
 publicBlogRouter.get('/bulk', async (c) => {
   
   const prisma = c.get('client');
