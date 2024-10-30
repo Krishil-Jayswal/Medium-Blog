@@ -6,6 +6,7 @@ import { z } from "zod";
 import { hashPassword, verifyPassword } from "../../utils/crypto";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
+import { userBindings } from "../../types/types";
 
 const signupInput = z.object({
   email: z.string().email(),
@@ -19,10 +20,7 @@ const signinInput = z.object({
 });
 
 export const userRouter = new Hono<{
-    Bindings: {
-        DATABASE_URL: string,
-        JWT_SECRET: string
-    }
+    Bindings: userBindings,
 }>();
 
 userRouter.post('/signup', async (c) => {

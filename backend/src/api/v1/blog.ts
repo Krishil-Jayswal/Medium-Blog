@@ -5,6 +5,7 @@ import { verify } from "hono/jwt";
 import { z } from "zod";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
+import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings } from "../../types/types";
 
 const createBlogInput = z.object({
   title: z.string().min(1),
@@ -18,19 +19,12 @@ const updateBlogInput = z.object({
 });
 
 export const publicBlogRouter = new Hono<{
-  Bindings: {
-    DATABASE_URL: string;
-  };
+  Bindings: publicBlogBindings,
 }>();
 
 export const protectedBlogRouter = new Hono<{
-  Bindings: {
-    DATABASE_URL: string;
-    JWT_SECRET: string;
-  };
-  Variables: {
-    userId: string;
-  };
+  Bindings: protectedBlogBindings,
+  Variables: protectedBlogVariables,
 }>();
 
 publicBlogRouter.get('/bulk', async (c) => {
