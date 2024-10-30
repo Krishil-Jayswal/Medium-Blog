@@ -1,13 +1,18 @@
 export enum ResponseMessage {
+    // Bad requests.
     InvalidInput = 'Please provide a valid set of inputs.',
     CredentialConflict = 'Email is already registered.',
-    NewResourceCreation = 'User created successfully.',
-    UserNotFound = 'No user exits with this email.',
     InvalidCredentials = 'Please provide a valid password.',
-    LoggedIn = 'User logged in successfully.',
     Unauthorized = 'User not logged in.',
     InvalidBlogId = 'Invalid blog Id format.',
+    
+    // Resource not found.
     BlogNotFound = 'Blog post not found.',
+    UserNotFound = 'No user exits with this email.',
+
+    // Successful request and their respective responses.
+    NewResourceCreation = 'User created successfully.',
+    LoggedIn = 'User logged in successfully.',
     BlogCreated = 'Blog post created successfully.',
     BlogUpdated = 'Blog post updated successfully.',
     

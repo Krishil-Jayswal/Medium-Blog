@@ -2,22 +2,11 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import { z } from "zod";
 import { hashPassword, verifyPassword } from "../../utils/crypto";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
 import { userBindings } from "../../types/types";
-
-const signupInput = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().optional()
-});
-
-const signinInput = z.object({
-  email: z.string().email(),
-  password: z.string().min(8)
-});
+import { signinInput, signupInput } from "@jkrishil/medium-blog-common";
 
 export const userRouter = new Hono<{
     Bindings: userBindings,
@@ -32,7 +21,7 @@ userRouter.post('/signup', async (c) => {
   try {
       const body = await c.req.json();
 
-      const { success } = signupInput.safeParse(body);
+      const { success } =  signupInput.safeParse(body);
 
       if(!success) throw new Error('InvalidInput');
 

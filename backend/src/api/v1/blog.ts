@@ -2,21 +2,10 @@ import { PrismaClient } from "@prisma/client/edge";
 import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
-import { z } from "zod";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
 import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings } from "../../types/types";
-
-const createBlogInput = z.object({
-  title: z.string().min(1),
-  content: z.string().min(1),
-});
-
-const updateBlogInput = z.object({
-  title: z.string().min(1),
-  content: z.string().min(1),
-  id: z.string().length(36),
-});
+import { createBlogInput, updateBlogInput } from "@jkrishil/medium-blog-common";
 
 export const publicBlogRouter = new Hono<{
   Bindings: publicBlogBindings,
