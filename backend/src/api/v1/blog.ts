@@ -1,14 +1,14 @@
-import { PrismaClient } from "@prisma/client/edge";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { Hono } from "hono";
-import { verify } from "hono/jwt";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
-import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings } from "../../types/types";
+import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings, publicBlogVariables } from "../../types/types";
 import { createBlogInput, updateBlogInput } from "@jkrishil/medium-blog-common";
+import { authMiddleware } from "../../middlewares/authMiddleware";
+import { prismaClientMiddleware } from "../../middlewares/prismaClientMiddleware";
 
 export const publicBlogRouter = new Hono<{
   Bindings: publicBlogBindings,
+  Variables: publicBlogVariables
 }>();
 
 export const protectedBlogRouter = new Hono<{
@@ -16,11 +16,11 @@ export const protectedBlogRouter = new Hono<{
   Variables: protectedBlogVariables,
 }>();
 
+publicBlogRouter.use('*', prismaClientMiddleware);
+
 publicBlogRouter.get('/bulk', async (c) => {
   
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
+  const prisma = c.get('client');
 
   try {
     const blogs = await prisma.post.findMany({
@@ -46,9 +46,7 @@ publicBlogRouter.get('/bulk', async (c) => {
 
 publicBlogRouter.get('/:blogId', async (c) => {
 
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
+  const prisma = c.get('client');
 
   const id = c.req.param("blogId");
   try {
@@ -88,34 +86,13 @@ publicBlogRouter.get('/:blogId', async (c) => {
   }
 });
 
-protectedBlogRouter.use("*", async (c, next) => {
-  try {
-    const jwt = c.req.header("Authorization");
+protectedBlogRouter.use("*", authMiddleware);
 
-    if (!jwt || !jwt.startsWith("Bearer ")) throw new Error("JWTERROR");
-
-    const token = jwt.split(" ")[1];
-
-    const payload = await verify(token, c.env.JWT_SECRET);
-
-    c.set("userId", String(payload.id));
-    await next();
-
-  } catch (error: any) {
-    if (error.message === "JWTERROR" || error.name === "JwtHeaderInvalid" || error.name === "JwtInvalidToken") {
-      return c.json({error: ResponseMessage.Unauthorized }, ResponseStatus.Unauthorized);
-    }
-
-    console.error("JWT ERROR: " + error.message);
-    return c.json({error: ResponseMessage.InternalError }, ResponseStatus.InternalError);
-  }
-});
+protectedBlogRouter.use('*', prismaClientMiddleware);
 
 protectedBlogRouter.post('/', async (c) => {
   
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
+  const prisma = c.get('client');
 
   try {
     const body = await c.req.json();
@@ -146,9 +123,7 @@ protectedBlogRouter.post('/', async (c) => {
 
 protectedBlogRouter.put('/', async (c) => {
   
-  const prisma = new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate());
+  const prisma = c.get('client');
 
   try {
     const body = await c.req.json();
