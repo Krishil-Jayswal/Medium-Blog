@@ -1,0 +1,14 @@
+{
+  "name": "@jkrishil/medium-blog-common",
+  "version": "1.0.0",
+  "description": "Common module of Medium blog project for zod validation and types.",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Krishil",
+  "license": "ISC",
+  "dependencies": {
+    "zod": "^3.23.8"
+  }
+}
