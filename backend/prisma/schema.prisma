@@ -14,18 +14,21 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  name      String?   
-  password  String
-  posts     Post[]
+  id            String  @id @default(uuid())
+  email         String  @unique
+  fullname      String  
+  username      String  @unique
+  profile_image String
+  password      String
+  googleAuth    Boolean @default(false)
+  posts         Post[]
 }
 
 model Post {
-  id        String    @id @default(uuid())
+  id        String  @id @default(uuid())
   title     String
   content   String
-  published Boolean   @default(false)
-  author    User      @relation(fields: [authorId], references: [id])
+  published Boolean @default(false)
+  author    User    @relation(fields: [authorId], references: [id])
   authorId  String
 }

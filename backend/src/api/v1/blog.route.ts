@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { ResponseMessage } from "../../utils/responseMessages";
 import { ResponseStatus } from "../../utils/statusCodes";
-import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings, publicBlogVariables } from "../../types/types";
+import { protectedBlogBindings, protectedBlogVariables, publicBlogBindings, publicBlogVariables } from "../../types/hono.type";
 import { createBlogInput, updateBlogInput } from "@jkrishil/medium-blog-common";
-import { authMiddleware } from "../../middlewares/authMiddleware";
-import { prismaClientMiddleware } from "../../middlewares/prismaClientMiddleware";
+import { protectRoute } from "../../middlewares/auth.middleware";
+import prismaClient from "../../middlewares/prismaClient.middleware";
 
 export const publicBlogRouter = new Hono<{
   Bindings: publicBlogBindings,
@@ -16,7 +16,7 @@ export const protectedBlogRouter = new Hono<{
   Variables: protectedBlogVariables,
 }>();
 
-publicBlogRouter.use('*', prismaClientMiddleware);
+publicBlogRouter.use('*', prismaClient);
 
 // Pagination remaining.
 publicBlogRouter.get('/bulk', async (c) => {
@@ -31,7 +31,7 @@ publicBlogRouter.get('/bulk', async (c) => {
         content: true,
         author: {
           select: {
-            name: true,
+            fullname: true,
           },
         },
       },
@@ -63,7 +63,7 @@ publicBlogRouter.get('/:blogId', async (c) => {
         content: true,
         author: {
           select: {
-            name: true,
+            fullname: true,
           },
         },
       },
@@ -87,9 +87,9 @@ publicBlogRouter.get('/:blogId', async (c) => {
   }
 });
 
-protectedBlogRouter.use("*", authMiddleware);
+protectedBlogRouter.use("*", protectRoute);
 
-protectedBlogRouter.use('*', prismaClientMiddleware);
+protectedBlogRouter.use('*', prismaClient);
 
 protectedBlogRouter.post('/', async (c) => {
   

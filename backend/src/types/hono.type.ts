@@ -26,3 +26,13 @@ export type protectedBlogVariables = {
   userId: string;
   client: PrismaClient;
 };
+
+export type authBindings = {
+  JWT_SECRET: string;
+  DATABASE_URL: string;
+}
+
+export type authVariables = {
+  client: PrismaClient;
+  userId: string;
+}

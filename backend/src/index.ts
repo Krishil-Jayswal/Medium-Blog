@@ -1,13 +1,16 @@
 import { Hono } from 'hono';
-import { userRouter } from './api/v1/user';
-import { protectedBlogRouter, publicBlogRouter } from './api/v1/blog';
+// import { protectedBlogRouter, publicBlogRouter } from './api/v1/blog';
+import { cors } from 'hono/cors';
+import V1Router from './api/v1/index.route';
 
 const app = new Hono();
 
-app.route('/api/v1/user', userRouter);
+app.use(cors());
 
-app.route('/api/v1/blog', publicBlogRouter);
+app.route('/api/v1', V1Router);
 
-app.route('/api/v1/auth/blog', protectedBlogRouter);
+// app.route('/api/v1/blog', publicBlogRouter);
+
+// app.route('/api/v1/auth/blog', protectedBlogRouter);
 
 export default app;
