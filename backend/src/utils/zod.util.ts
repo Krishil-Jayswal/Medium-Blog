@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 export const SignUpSchema = z.object({
   fullname: z
@@ -16,5 +16,16 @@ export const SignUpSchema = z.object({
 
 export const SignInSchema = z.object({
   email: z.string().min(1, "Email is required").max(255),
-  password: z.string().min(1, "password is required").max(255)
+  password: z.string().min(1, "password is required").max(255),
 });
+
+export const wrapError = (error: ZodError) => {
+  const detailedErrors = error.errors.map((err) => ({
+    field: err.path.join("."),
+    message: err.message,
+  }));
+
+  return detailedErrors;
+};
+
+export const ZodErr =  ZodError;

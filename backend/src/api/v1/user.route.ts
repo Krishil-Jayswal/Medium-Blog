@@ -1,6 +1,7 @@
 import { Hono } from "hono";
-import { userBindings, userVariables } from "../../types/hono.type";
-import prismaClient from "../../middlewares/prismaClient.middleware";
+import { userBindings, userVariables } from "@generics/hono.generic";
+import prismaClient from "@middlewares/prismaClient.middleware";
+import protectRoute from "@middlewares/auth.middleware";
 
 const userRouter = new Hono<{
   Bindings: userBindings;
@@ -8,5 +9,10 @@ const userRouter = new Hono<{
 }>();
 
 userRouter.use("*", prismaClient);
+userRouter.use("*", protectRoute);
+
+userRouter.get("/profile", async (c) => {
+  
+});
 
 export default userRouter;

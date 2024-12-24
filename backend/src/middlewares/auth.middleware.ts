@@ -8,7 +8,7 @@ import {
   JwtTokenSignatureMismatched,
 } from "hono/utils/jwt/types";
 
-export const protectRoute = createMiddleware(async (c, next) => {
+const protectRoute = createMiddleware(async (c, next) => {
   try {
     const token = getCookie(c, "jwt_medium");
 
@@ -36,3 +36,5 @@ export const protectRoute = createMiddleware(async (c, next) => {
     console.log('Error in auth middleware: ' + error.message);
   }
 });
+
+export default protectRoute;

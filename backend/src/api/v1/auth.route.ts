@@ -1,17 +1,14 @@
 import { Hono } from "hono";
-import { authBindings, authVariables } from "../../types/hono.type";
-import prismaClient from "../../middlewares/prismaClient.middleware";
-import { SignInSchema, SignUpSchema } from "../../utils/zod";
-import { wrapError } from "../../utils/wrapErrors";
-import { hashPassword, verifyPassword } from "../../utils/crypto";
+import { authBindings, authVariables } from "@generics/hono.generic";
+import prismaClient from "@middlewares/prismaClient.middleware";
+import { SignInSchema, SignUpSchema, wrapError, ZodErr } from "@utils/zod.util";
+import { hashPassword, verifyPassword } from "@utils/crypto.util";
 import {
-  generateAndSetCookie,
   generateProfileImage,
   generateUsername,
-} from "../../utils/generator";
-import { ZodError } from "zod";
-import { deleteCookie } from "hono/cookie";
-import { protectRoute } from "../../middlewares/auth.middleware";
+} from "@utils/userDetail.util";
+import protectRoute from "@middlewares/auth.middleware";
+import { clearCookie, generateAndSetCookie } from "@utils/auth.util";
 
 const authRouter = new Hono<{
   Bindings: authBindings;
@@ -55,7 +52,7 @@ authRouter.post("/signup", async (c) => {
       201
     );
   } catch (error: any) {
-    if (error instanceof ZodError) {
+    if (error instanceof ZodErr) {
       const errors = wrapError(error);
       return c.json(
         {
@@ -105,9 +102,9 @@ authRouter.post("/signin", async (c) => {
       username: user.username,
       fullname: user.fullname,
       profile_image: user.profile_image,
-    });
+    }, 200);
   } catch (error: any) {
-    if (error instanceof ZodError) {
+    if (error instanceof ZodErr) {
       const errors = wrapError(error);
       return c.json({ message: "Invalid input format", errors }, 400);
     }
@@ -118,7 +115,7 @@ authRouter.post("/signin", async (c) => {
 
 authRouter.post("/signout", (c) => {
   // Clear the cookie
-  deleteCookie(c, "jwt_medium");
+  clearCookie(c);
   // return
   return c.json({ message: "Logged out successfully" });
 });

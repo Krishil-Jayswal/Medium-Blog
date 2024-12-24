@@ -7,6 +7,10 @@ const app = new Hono();
 
 app.use(cors());
 
+app.get("/", (c) => {
+    return c.text("Medium Blog Backend");
+});
+
 app.route('/api/v1', V1Router);
 
 // app.route('/api/v1/blog', publicBlogRouter);
